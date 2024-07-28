@@ -70,7 +70,7 @@ class _AutomatoHomePageState extends State<AutomatoHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final paddingHorizontal = MediaQuery.of(context).size.width * 0.2;
+    final paddingHorizontal = MediaQuery.of(context).size.width * 0.5;
     final paddingVertical = MediaQuery.of(context).size.height * 0.8;
 
     return Scaffold(
@@ -80,13 +80,11 @@ class _AutomatoHomePageState extends State<AutomatoHomePage> {
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.only(
+          /* padding: EdgeInsets.only(
               left: paddingHorizontal,
               right: paddingHorizontal,
               top: paddingVertical,
-              bottom: paddingVertical),
-
-
+              bottom: paddingVertical),*/
           child: SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(16.0),
@@ -96,7 +94,6 @@ class _AutomatoHomePageState extends State<AutomatoHomePage> {
                 borderRadius: BorderRadius.circular(12.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black26,
                     blurRadius: 10,
                     offset: Offset(0, 4),
                   ),

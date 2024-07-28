@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void main() { 
+void main() {
   runApp(AutomatoApp());
 }
 
@@ -33,7 +33,7 @@ class _AutomatoHomePageState extends State<AutomatoHomePage> {
   final TextEditingController _acceptStatesController = TextEditingController();
   final TextEditingController _wordsController = TextEditingController();
 
-  Map<String, dynamic> _results = {};
+  late Map<String, dynamic> _results = {};
 
   Future<void> _simulateAutomato() async {
     try {
@@ -65,70 +65,113 @@ class _AutomatoHomePageState extends State<AutomatoHomePage> {
       }
     } catch (e) {
       print('Erro na simulação: $e');
-      // Tratar erro, exibir mensagem ao usuário, etc.
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final paddingHorizontal = MediaQuery.of(context).size.width * 0.2;
+    final paddingVertical = MediaQuery.of(context).size.height * 0.8;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Automato Simulator'),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextField(
-                controller: _typeController,
-                decoration:
-                    InputDecoration(labelText: 'Tipo de autômato (AFD/AFN)'),
+      body: Center(
+        child: Container(
+          padding: EdgeInsets.only(
+              left: paddingHorizontal,
+              right: paddingHorizontal,
+              top: paddingVertical,
+              bottom: paddingVertical),
+
+
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.symmetric(horizontal: 24.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-              TextField(
-                controller: _statesController,
-                decoration: InputDecoration(
-                    labelText: 'Estados (separados por espaço)'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  _buildTextField(
+                    controller: _typeController,
+                    labelText: 'Tipo de autômato (AFD/AFN)',
+                  ),
+                  _buildTextField(
+                    controller: _statesController,
+                    labelText: 'Estados (separados por espaço)',
+                  ),
+                  _buildTextField(
+                    controller: _alphabetController,
+                    labelText: 'Alfabeto (separado por espaço)',
+                  ),
+                  _buildTextField(
+                    controller: _transitionsController,
+                    labelText: 'Transições (estado,símbolo,próximo_estado)',
+                  ),
+                  _buildTextField(
+                    controller: _startStateController,
+                    labelText: 'Estado inicial',
+                  ),
+                  _buildTextField(
+                    controller: _acceptStatesController,
+                    labelText: 'Estados de aceitação (separados por espaço)',
+                  ),
+                  _buildTextField(
+                    controller: _wordsController,
+                    labelText: 'Palavras para simulação (separadas por espaço)',
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _simulateAutomato,
+                    child: Text('Simular'),
+                  ),
+                  SizedBox(height: 20),
+                  _results.isNotEmpty
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _results.entries.map((entry) {
+                            return Text(
+                              '${entry.key}: ${entry.value}',
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.black87),
+                            );
+                          }).toList(),
+                        )
+                      : Container(),
+                ],
               ),
-              TextField(
-                controller: _alphabetController,
-                decoration: InputDecoration(
-                    labelText: 'Alfabeto (separado por espaço)'),
-              ),
-              TextField(
-                controller: _transitionsController,
-                decoration: InputDecoration(
-                    labelText: 'Transições (estado,símbolo,próximo_estado)'),
-              ),
-              TextField(
-                controller: _startStateController,
-                decoration: InputDecoration(labelText: 'Estado inicial'),
-              ),
-              TextField(
-                controller: _acceptStatesController,
-                decoration: InputDecoration(
-                    labelText: 'Estados de aceitação (separados por espaço)'),
-              ),
-              TextField(
-                controller: _wordsController,
-                decoration: InputDecoration(
-                    labelText:
-                        'Palavras para simulação (separadas por espaço)'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _simulateAutomato,
-                child: Text('Simular'),
-              ),
-              SizedBox(height: 20),
-              _results.isNotEmpty
-                  ? Text(
-                      'Resultados: \n${_results.toString()}',
-                      style: TextStyle(fontSize: 16),
-                    )
-                  : Container(),
-            ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+      {required TextEditingController controller, required String labelText}) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
           ),
         ),
       ),

@@ -1,70 +1,121 @@
+# Importa as bibliotecas necessárias
 from flask import Flask, request, jsonify
-import json
 from flask_cors import CORS
+import traceback
+
+# Cria uma instância do Flask e permite CORS
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para todas as rotas
-app = Flask(__name__)
+CORS(app)
 
-class Automaton:
-    def __init__(self, states, alphabet, transition_function, start_state, accept_states):
-        self.states = states
-        self.alphabet = alphabet
-        self.transition_function = transition_function
-        self.start_state = start_state
-        self.accept_states = accept_states
-    
-    def simulate(self, word):
-        current_state = self.start_state
-        for symbol in word:
-            if (current_state, symbol) in self.transition_function:
-                current_state = self.transition_function[(current_state, symbol)]
-            else:
-                return "rejeitada"
-        return "aceita" if current_state in self.accept_states else "rejeitada"
+class AFD:
+    def __init__(self, estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao):
+        self.estados = estados  
+        self.alfabeto = alfabeto 
+        self.funcao_transicao = funcao_transicao   
+        self.estado_inicial = estado_inicial    
+        self.estados_aceitacao = estados_aceitacao    
 
-def afn_to_afd(afn):
-    # Implement your AFN to AFD conversion logic here
-    pass
+    def simular(self, palavra):
+        estado_atual = self.estado_inicial 
+        for simbolo in palavra:
+            #Transita para o proximo estado 
+            estado_atual = self.funcao_transicao.get((frozenset(estado_atual), simbolo), None)
+            if estado_atual is None:
+                return False 
+        return estado_atual in self.estados_aceitacao  
 
-def check_equivalence(afn, afd, words):
-    # Implement your equivalence checking logic here
-    pass
+class AFN:
+    def __init__(self, estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao):
+        self.estados = estados 
+        self.alfabeto = alfabeto  
+        self.funcao_transicao = funcao_transicao   
+        self.estado_inicial = estado_inicial    
+        self.estados_aceitacao = estados_aceitacao    
 
-@app.route('/simulate', methods=['POST'])
-def simulate():
-    data = request.json
-    automaton_type = data.get('automaton_type')
-    states = data.get('states')
-    alphabet = data.get('alphabet')
-    transitions = data.get('transitions')
-    start_state = data.get('start_state')
-    accept_states = data.get('accept_states')
-    words = data.get('words')
+    def simular(self, palavra):
+        return self._simular_recursivo({self.estado_inicial}, palavra)
 
-    states = set(states)
-    alphabet = set(alphabet)
-    transition_function = {}
-    for t in transitions:
-        state, symbol, next_state = t.split(',')
-        if (state, symbol) not in transition_function:
-            transition_function[(state, symbol)] = next_state
+    def _simular_recursivo(self, estados_atuais, palavra):
+        if not palavra:
+            return bool(estados_atuais & self.estados_aceitacao)
+        proximos_estados = set()
+        for estado in estados_atuais:
+            proximos_estados.update(self.funcao_transicao.get((estado, palavra[0]), set()))
+        return self._simular_recursivo(proximos_estados, palavra[1:])
+
+def afn_para_afd(afn):
+    novos_estados = set()
+    nova_funcao_transicao = {}
+    novo_estado_inicial = frozenset([afn.estado_inicial])
+    novos_estados_aceitacao = set()
+
+    fila_estados = [novo_estado_inicial]
+    while fila_estados:
+        atual = fila_estados.pop(0)
+        novos_estados.add(atual)
+        if atual & afn.estados_aceitacao:
+            novos_estados_aceitacao.add(atual)
+        for simbolo in afn.alfabeto:
+            proximo_estado = frozenset(
+                estado for cs in atual for estado in afn.funcao_transicao.get((cs, simbolo), set())
+            )
+            nova_funcao_transicao[(atual, simbolo)] = proximo_estado
+            if proximo_estado not in novos_estados:
+                fila_estados.append(proximo_estado)
+
+    return AFD(novos_estados, afn.alfabeto, nova_funcao_transicao, novo_estado_inicial, novos_estados_aceitacao)
+
+#Rota
+@app.route('/simular', methods=['POST'])
+def simular():
+    try:
+        dados = request.json  # Obtém os dados da requisição
+        tipo_automato = dados.get('tipo_automato')
+        estados = dados.get('estados')
+        alfabeto = dados.get('alfabeto')
+        transicoes = dados.get('transicoes')
+        estado_inicial = dados.get('estado_inicial')
+        estados_aceitacao = dados.get('estados_aceitacao')
+        palavras = dados.get('palavras')
+
+        # Converte os dados recebidos em formatos apropriados
+        estados = set(estados)
+        alfabeto = set(alfabeto)
+        funcao_transicao = {}
+        for t in transicoes:
+            estado, simbolo, proximo_estado = t.split(',')
+            if (estado, simbolo) not in funcao_transicao:
+                funcao_transicao[(estado, simbolo)] = set()
+            funcao_transicao[(estado, simbolo)].add(proximo_estado)
+
+        estados_aceitacao = set(estados_aceitacao)
+
+        # Cria o autômato baseado no tipo especificado
+        if tipo_automato == 'AFD':
+            automato = AFD(estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao)
+        elif tipo_automato == 'AFN':
+            automato = AFN(estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao)
         else:
-            transition_function[(state, symbol)] += "," + next_state
+            return jsonify({"erro": "Tipo de autômato inválido. Use 'AFD' ou 'AFN'."}), 400
 
-    accept_states = set(accept_states)
+        resultados = {}
+        if tipo_automato == 'AFN':
+            # Converte AFN para AFD e simula ambos
+            afd = afn_para_afd(automato)
+            for palavra in palavras:
+                resultados[palavra] = {
+                    "AFN": automato.simular(palavra),
+                    "AFD": afd.simular(palavra)
+                }
+        else:
+            # Simula o AFD diretamente
+            for palavra in palavras:
+                resultados[palavra] = automato.simular(palavra)
 
-    if automaton_type == 'AFD':
-        automaton = Automaton(states, alphabet, transition_function, start_state, accept_states)
-    elif automaton_type == 'AFN':
-        automaton = Automaton(states, alphabet, transition_function, start_state, accept_states)
-    else:
-        return jsonify({"error": "Tipo de autômato inválido. Use 'AFD' ou 'AFN'."})
-
-    results = {}
-    for word in words:
-        results[word] = automaton.simulate(word)
-
-    return jsonify(results)
+        return jsonify(resultados)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"erro": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

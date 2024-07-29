@@ -38,18 +38,19 @@ class _AutomatoHomePageState extends State<AutomatoHomePage> {
   Future<void> _simulateAutomato() async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:5000/simulate'),
+        Uri.parse(
+            'http://localhost:5000/simular'), 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({
-          'automaton_type': _typeController.text,
-          'states': _statesController.text.split(' '),
-          'alphabet': _alphabetController.text.split(' '),
-          'transitions': _transitionsController.text.split(' '),
-          'start_state': _startStateController.text,
-          'accept_states': _acceptStatesController.text.split(' '),
-          'words': _wordsController.text.split(' '),
+          'tipo_automato': _typeController.text,
+          'estados': _statesController.text.split(' '),
+          'alfabeto': _alphabetController.text.split(' '),
+          'transicoes': _transitionsController.text.split(' '),
+          'estado_inicial': _startStateController.text,
+          'estados_aceitacao': _acceptStatesController.text.split(' '),
+          'palavras': _wordsController.text.split(' '),
         }),
       );
 

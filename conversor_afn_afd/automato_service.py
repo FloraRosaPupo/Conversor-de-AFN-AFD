@@ -18,8 +18,7 @@ class AFD:
     def simular(self, palavra):
         estado_atual = self.estado_inicial 
         for simbolo in palavra:
-            #Transita para o proximo estado 
-            estado_atual = self.funcao_transicao.get((frozenset(estado_atual), simbolo), None)
+            estado_atual = self.funcao_transicao.get((estado_atual, simbolo), None)
             if estado_atual is None:
                 return False 
         return estado_atual in self.estados_aceitacao  
@@ -65,7 +64,11 @@ def afn_para_afd(afn):
 
     return AFD(novos_estados, afn.alfabeto, nova_funcao_transicao, novo_estado_inicial, novos_estados_aceitacao)
 
-#Rota
+def minimizar_afd(afd):
+    # Algoritmo de minimização de AFD (a ser implementado)
+    # Retorne o AFD minimizado
+    return afd  # Placeholder; implementar minimização aqui
+
 @app.route('/simular', methods=['POST'])
 def simular():
     try:
@@ -77,41 +80,30 @@ def simular():
         estado_inicial = dados.get('estado_inicial')
         estados_aceitacao = dados.get('estados_aceitacao')
         palavras = dados.get('palavras')
+        minimizar = dados.get('minimizar', False)  # Adiciona a opção de minimização
 
-        # Converte os dados recebidos em formatos apropriados
         estados = set(estados)
         alfabeto = set(alfabeto)
         funcao_transicao = {}
         for t in transicoes:
             estado, simbolo, proximo_estado = t.split(',')
-            if (estado, simbolo) not in funcao_transicao:
-                funcao_transicao[(estado, simbolo)] = set()
-            funcao_transicao[(estado, simbolo)].add(proximo_estado)
+            funcao_transicao[(estado, simbolo)] = proximo_estado
 
         estados_aceitacao = set(estados_aceitacao)
 
-        # Cria o autômato baseado no tipo especificado
         if tipo_automato == 'AFD':
             automato = AFD(estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao)
+            if minimizar:
+                automato = minimizar_afd(automato)
         elif tipo_automato == 'AFN':
             automato = AFN(estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao)
+            automato = afn_para_afd(automato)
+            if minimizar:
+                automato = minimizar_afd(automato)
         else:
             return jsonify({"erro": "Tipo de autômato inválido. Use 'AFD' ou 'AFN'."}), 400
 
-        resultados = {}
-        if tipo_automato == 'AFN':
-            # Converte AFN para AFD e simula ambos
-            afd = afn_para_afd(automato)
-            for palavra in palavras:
-                resultados[palavra] = {
-                    "AFN": automato.simular(palavra),
-                    "AFD": afd.simular(palavra)
-                }
-        else:
-            # Simula o AFD diretamente
-            for palavra in palavras:
-                resultados[palavra] = automato.simular(palavra)
-
+        resultados = {palavra: automato.simular(palavra) for palavra in palavras}
         return jsonify(resultados)
     except Exception as e:
         traceback.print_exc()

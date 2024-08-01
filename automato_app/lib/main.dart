@@ -3,174 +3,142 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 void main() {
-  runApp(AutomatoApp());
+  runApp(MaterialApp(
+    home: AFDApp(),
+  ));
 }
 
-class AutomatoApp extends StatelessWidget {
+class AFDApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Automato Simulator',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: AutomatoHomePage(),
-    );
-  }
+  _AFDAppState createState() => _AFDAppState();
 }
 
-class AutomatoHomePage extends StatefulWidget {
-  @override
-  _AutomatoHomePageState createState() => _AutomatoHomePageState();
-}
+class _AFDAppState extends State<AFDApp> {
+  final TextEditingController _tipoAutomatoController = TextEditingController();
+  final TextEditingController _estadosController = TextEditingController();
+  final TextEditingController _alfabetoController = TextEditingController();
+  final TextEditingController _transicoesController = TextEditingController();
+  final TextEditingController _estadoInicialController =
+      TextEditingController();
+  final TextEditingController _estadosAceitacaoController =
+      TextEditingController();
+  final TextEditingController _palavrasController = TextEditingController();
+  bool _minimizar = false;
+  String _resultado = '';
 
-class _AutomatoHomePageState extends State<AutomatoHomePage> {
-  final TextEditingController _typeController = TextEditingController();
-  final TextEditingController _statesController = TextEditingController();
-  final TextEditingController _alphabetController = TextEditingController();
-  final TextEditingController _transitionsController = TextEditingController();
-  final TextEditingController _startStateController = TextEditingController();
-  final TextEditingController _acceptStatesController = TextEditingController();
-  final TextEditingController _wordsController = TextEditingController();
-
-  late Map<String, dynamic> _results = {};
-
-  Future<void> _simulateAutomato() async {
+  Future<void> _simular() async {
     try {
       final response = await http.post(
-        Uri.parse(
-            'http://localhost:5000/simular'), 
+        Uri.parse('http://localhost:5000/simular'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({
-          'tipo_automato': _typeController.text,
-          'estados': _statesController.text.split(' '),
-          'alfabeto': _alphabetController.text.split(' '),
-          'transicoes': _transitionsController.text.split(' '),
-          'estado_inicial': _startStateController.text,
-          'estados_aceitacao': _acceptStatesController.text.split(' '),
-          'palavras': _wordsController.text.split(' '),
+        body: jsonEncode(<String, dynamic>{
+          'tipo_automato': _tipoAutomatoController.text,
+          'estados': _estadosController.text.split(' '),
+          'alfabeto': _alfabetoController.text.split(' '),
+          'transicoes': _transicoesController.text.split(' '),
+          'estado_inicial': _estadoInicialController.text,
+          'estados_aceitacao': _estadosAceitacaoController.text.split(' '),
+          'palavras': _palavrasController.text.split(' '),
+          'minimizar': _minimizar, // Envia a escolha de minimizar ou não
         }),
       );
 
-      print('StatusCode: ${response.statusCode}');
-      print('Response: ${response.body}');
-
       if (response.statusCode == 200) {
         setState(() {
-          _results = jsonDecode(response.body);
+          _resultado = json.decode(response.body).toString();
         });
       } else {
-        throw Exception('Failed to simulate automato: ${response.statusCode}');
+        setState(() {
+          _resultado = 'Erro na simulação: ${response.body}';
+        });
       }
     } catch (e) {
-      print('Erro na simulação: $e');
+      setState(() {
+        _resultado = 'Erro: $e';
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final paddingHorizontal = MediaQuery.of(context).size.width * 0.5;
-    final paddingVertical = MediaQuery.of(context).size.height * 0.8;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Automato Simulator'),
-        centerTitle: true,
+        title: Text('Simulador de AFD/AFN'),
       ),
-      body: Center(
-        child: Container(
-          /* padding: EdgeInsets.only(
-              left: paddingHorizontal,
-              right: paddingHorizontal,
-              top: paddingVertical,
-              bottom: paddingVertical),*/
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              margin: const EdgeInsets.symmetric(horizontal: 24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  _buildTextField(
-                    controller: _typeController,
-                    labelText: 'Tipo de autômato (AFD/AFN)',
-                  ),
-                  _buildTextField(
-                    controller: _statesController,
-                    labelText: 'Estados (separados por espaço)',
-                  ),
-                  _buildTextField(
-                    controller: _alphabetController,
-                    labelText: 'Alfabeto (separado por espaço)',
-                  ),
-                  _buildTextField(
-                    controller: _transitionsController,
-                    labelText: 'Transições (estado,símbolo,próximo_estado)',
-                  ),
-                  _buildTextField(
-                    controller: _startStateController,
-                    labelText: 'Estado inicial',
-                  ),
-                  _buildTextField(
-                    controller: _acceptStatesController,
-                    labelText: 'Estados de aceitação (separados por espaço)',
-                  ),
-                  _buildTextField(
-                    controller: _wordsController,
-                    labelText: 'Palavras para simulação (separadas por espaço)',
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _simulateAutomato,
-                    child: Text('Simular'),
-                  ),
-                  SizedBox(height: 20),
-                  _results.isNotEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _results.entries.map((entry) {
-                            return Text(
-                              '${entry.key}: ${entry.value}',
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.black87),
-                            );
-                          }).toList(),
-                        )
-                      : Container(),
-                ],
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _tipoAutomatoController,
+              decoration: InputDecoration(
+                labelText: 'Tipo de autômato (AFD ou AFN)',
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      {required TextEditingController controller, required String labelText}) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: labelText,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+            TextField(
+              controller: _estadosController,
+              decoration: InputDecoration(
+                labelText: 'Estados (separados por espaço)',
+              ),
+            ),
+            TextField(
+              controller: _alfabetoController,
+              decoration: InputDecoration(
+                labelText: 'Alfabeto (separado por espaço)',
+              ),
+            ),
+            TextField(
+              controller: _transicoesController,
+              decoration: InputDecoration(
+                labelText: 'Transições (formato estado,símbolo,próximo estado)',
+              ),
+            ),
+            TextField(
+              controller: _estadoInicialController,
+              decoration: InputDecoration(
+                labelText: 'Estado inicial',
+              ),
+            ),
+            TextField(
+              controller: _estadosAceitacaoController,
+              decoration: InputDecoration(
+                labelText: 'Estados de aceitação (separados por espaço)',
+              ),
+            ),
+            TextField(
+              controller: _palavrasController,
+              decoration: InputDecoration(
+                labelText: 'Palavras para simulação (separadas por espaço)',
+              ),
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: _minimizar,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _minimizar = value!;
+                    });
+                  },
+                ),
+                Text('Minimizar AFD'),
+              ],
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _simular,
+              child: Text('Simular'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Resultado:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(_resultado),
+          ],
         ),
       ),
     );

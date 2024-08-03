@@ -106,7 +106,7 @@ def simular():
         else:
             return jsonify({"erro": "Tipo de autômato inválido. Use 'AFD' ou 'AFN'."}), 400
 
-        resultados = {palavra: automato.simular(palavra) for palavra in palavras}
+        resultados = {palavra: {'aceito': automato.simular(palavra)} for palavra in palavras}
         return jsonify(resultados)
     except Exception as e:
         traceback.print_exc()

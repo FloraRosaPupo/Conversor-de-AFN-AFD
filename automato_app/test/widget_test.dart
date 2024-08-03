@@ -1,30 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:automato_app/form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:automato_app/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Testa interação com o widget AFDApp', (WidgetTester tester) async {
+    // Construa o app e acione um frame.
+    await tester.pumpWidget(MaterialApp(home: AFDApp()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verifique se os campos e botões estão presentes
+    expect(find.text('Tipo de autômato (AFD ou AFN)'), findsOneWidget);
+    expect(find.text('Estados (separados por espaço)'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Insira texto nos campos de texto
+    await tester.enterText(find.byType(TextField).at(0), 'AFD');
+    await tester.enterText(find.byType(TextField).at(1), 'q0 q1');
+    await tester.enterText(find.byType(TextField).at(2), 'a b');
+    await tester.enterText(find.byType(TextField).at(3), 'q0,a,q1 q1,b,q0');
+    await tester.enterText(find.byType(TextField).at(4), 'q0');
+    await tester.enterText(find.byType(TextField).at(5), 'q1');
+    await tester.enterText(find.byType(TextField).at(6), 'ab');
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Toque no botão de simulação
+    await tester.tap(find.text('Simular'));
+    await tester.pumpAndSettle(); // Aguarde a conclusão da animação e atualização de widgets
+
+    // Adicione um atraso para garantir que o texto esteja visível
+    await Future.delayed(Duration(seconds: 1));
+
+    // Verifique se o resultado esperado está presente
+    expect(find.textContaining('Palavra: ab'), findsOneWidget);
   });
 }

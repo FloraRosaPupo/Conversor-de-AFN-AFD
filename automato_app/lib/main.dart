@@ -23,7 +23,6 @@ class _AFDAppState extends State<AFDApp> {
   final TextEditingController _palavrasController = TextEditingController();
   bool _minimizar = false;
   String _resultado = '';
-  String _imagemUrl = '';
 
   Future<void> _simular() async {
     try {
@@ -40,15 +39,13 @@ class _AFDAppState extends State<AFDApp> {
           'estado_inicial': _estadoInicialController.text,
           'estados_aceitacao': _estadosAceitacaoController.text.split(' '),
           'palavras': _palavrasController.text.split(' '),
-          'minimizar': _minimizar,
+          'minimizar': _minimizar, // Envia a escolha de minimizar ou não
         }),
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
         setState(() {
-          _resultado = data.toString();
-          _imagemUrl = 'http://localhost:5000/automato.png';  // URL da imagem gerada
+          _resultado = json.decode(response.body).toString();
         });
       } else {
         setState(() {
@@ -60,6 +57,20 @@ class _AFDAppState extends State<AFDApp> {
         _resultado = 'Erro: $e';
       });
     }
+  }
+
+  void _limparCampos() {
+    _tipoAutomatoController.clear();
+    _estadosController.clear();
+    _alfabetoController.clear();
+    _transicoesController.clear();
+    _estadoInicialController.clear();
+    _estadosAceitacaoController.clear();
+    _palavrasController.clear();
+    setState(() {
+      _resultado = '';
+      _minimizar = false;
+    });
   }
 
   @override
@@ -129,9 +140,18 @@ class _AFDAppState extends State<AFDApp> {
               ],
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _simular,
-              child: Text('Simular'),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: _simular,
+                  child: Text('Simular'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _limparCampos,
+                  child: Text('Limpar'),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             Text(
@@ -139,10 +159,6 @@ class _AFDAppState extends State<AFDApp> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(_resultado),
-            SizedBox(height: 20),
-            _imagemUrl.isNotEmpty
-                ? Image.network(_imagemUrl)
-                : Container(),
           ],
         ),
       ),

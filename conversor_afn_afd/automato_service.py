@@ -1,9 +1,10 @@
-# Importa as bibliotecas necessárias
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import traceback
+import json
+from graphviz import Digraph
+import os
 
-# Cria uma instância do Flask e permite CORS
 app = Flask(__name__)
 CORS(app)
 
@@ -22,6 +23,22 @@ class AFD:
             if estado_atual is None:
                 return False 
         return estado_atual in self.estados_aceitacao  
+
+    def gerar_imagem(self, filename):
+        dot = Digraph()
+        for estado in self.estados:
+            if estado in self.estados_aceitacao:
+                dot.node(estado, shape='doublecircle')
+            else:
+                dot.node(estado)
+        
+        dot.node('', shape='none')
+        dot.edge('', self.estado_inicial)
+
+        for (origem, simbolo), destino in self.funcao_transicao.items():
+            dot.edge(origem, destino, label=simbolo)
+
+        dot.render(filename, format='png')
 
 class AFN:
     def __init__(self, estados, alfabeto, funcao_transicao, estado_inicial, estados_aceitacao):
@@ -72,7 +89,7 @@ def minimizar_afd(afd):
 @app.route('/simular', methods=['POST'])
 def simular():
     try:
-        dados = request.json  # Obtém os dados da requisição
+        dados = request.json
         tipo_automato = dados.get('tipo_automato')
         estados = dados.get('estados')
         alfabeto = dados.get('alfabeto')
@@ -80,7 +97,7 @@ def simular():
         estado_inicial = dados.get('estado_inicial')
         estados_aceitacao = dados.get('estados_aceitacao')
         palavras = dados.get('palavras')
-        minimizar = dados.get('minimizar', False)  # Adiciona a opção de minimização
+        minimizar = dados.get('minimizar', False)
 
         estados = set(estados)
         alfabeto = set(alfabeto)
@@ -104,7 +121,12 @@ def simular():
             return jsonify({"erro": "Tipo de autômato inválido. Use 'AFD' ou 'AFN'."}), 400
 
         resultados = {palavra: automato.simular(palavra) for palavra in palavras}
-        return jsonify(resultados)
+        
+        # Gera a imagem do autômato
+        image_path = 'automato'
+        automato.gerar_imagem(image_path)
+        
+        return jsonify(resultados), send_file(image_path + '.png', mimetype='image/png')
     except Exception as e:
         traceback.print_exc()
         return jsonify({"erro": str(e)}), 500

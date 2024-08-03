@@ -18,13 +18,12 @@ class _AFDAppState extends State<AFDApp> {
   final TextEditingController _estadosController = TextEditingController();
   final TextEditingController _alfabetoController = TextEditingController();
   final TextEditingController _transicoesController = TextEditingController();
-  final TextEditingController _estadoInicialController =
-      TextEditingController();
-  final TextEditingController _estadosAceitacaoController =
-      TextEditingController();
+  final TextEditingController _estadoInicialController = TextEditingController();
+  final TextEditingController _estadosAceitacaoController = TextEditingController();
   final TextEditingController _palavrasController = TextEditingController();
   bool _minimizar = false;
   String _resultado = '';
+  String _imagemUrl = '';
 
   Future<void> _simular() async {
     try {
@@ -41,13 +40,15 @@ class _AFDAppState extends State<AFDApp> {
           'estado_inicial': _estadoInicialController.text,
           'estados_aceitacao': _estadosAceitacaoController.text.split(' '),
           'palavras': _palavrasController.text.split(' '),
-          'minimizar': _minimizar, // Envia a escolha de minimizar ou não
+          'minimizar': _minimizar,
         }),
       );
 
       if (response.statusCode == 200) {
+        final data = json.decode(response.body);
         setState(() {
-          _resultado = json.decode(response.body).toString();
+          _resultado = data.toString();
+          _imagemUrl = 'http://localhost:5000/automato.png';  // URL da imagem gerada
         });
       } else {
         setState(() {
@@ -138,6 +139,10 @@ class _AFDAppState extends State<AFDApp> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(_resultado),
+            SizedBox(height: 20),
+            _imagemUrl.isNotEmpty
+                ? Image.network(_imagemUrl)
+                : Container(),
           ],
         ),
       ),

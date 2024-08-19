@@ -30,18 +30,21 @@ class _TuringAppState extends State<TuringApp> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'states': _statesController.text.split(' '),
-          'alphabet': _alphabetController.text.split(' '),
-          'transitions': _transitionsController.text.split(';'),
-          'initial_state': _initialStateController.text,
-          'tape': _tapeController.text,
-          'final_states': _finalStatesController.text.split(' '),
+          'estados': _statesController.text.split(' '),
+          'alfabeto': _alphabetController.text.split(' '),
+          'transicao': _transitionsController.text.split(';'),
+          'estado_inicial': _initialStateController.text,
+          'fita': _tapeController.text,
+          'final_estados': _finalStatesController.text.split(' '),
         }),
       );
 
       if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
         setState(() {
-          _result = response.body;
+          _result = "Fita Final: ${result['final_fita']}\n"
+              "Estado Final: ${result['final_state']}\n"
+              "Transições: ${(result['transicoes'] != null) ? result['transicoes'].join('\n') : 'Nenhuma transição realizada'}";
         });
       } else {
         setState(() {
@@ -72,7 +75,7 @@ class _TuringAppState extends State<TuringApp> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Máquina de Turing',
+          'Maquina de Turing',
           style: TextStyle(fontSize: 15),
         ),
         leading: IconButton(
@@ -156,4 +159,11 @@ class _TuringAppState extends State<TuringApp> {
       ),
     );
   }
+}
+
+String _validarInput(String value, String type) {
+  if (value.length == 0) {
+    return 'Informe o ${type}';
+  }
+  return '';
 }

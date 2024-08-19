@@ -8,63 +8,57 @@ CORS(app)
 def simulate():
     data = request.get_json()
 
-    # Verificar se os dados foram recebidos corretamente
-    print("Received data:", data)
+    print("Dados recebidos:", data)
 
-    states = data.get('states', [])
-    alphabet = data.get('alphabet', [])
-    transitions = data.get('transitions', [])
-    initial_state = data.get('initial_state', '')
-    tape = list(data.get('tape', ''))
-    final_states = data.get('final_states', [])
+    estados = data.get('estados', [])
+    alfabeto = data.get('alfabeto', [])
+    transicao = data.get('transicao', [])
+    estado_inicial = data.get('estado_inicial', '')
+    fita = list(data.get('fita', ''))
+    final_estados = data.get('final_estados', [])
 
-    print("States:", states)
-    print("Alphabet:", alphabet)
-    print("Transitions:", transitions)
-    print("Initial State:", initial_state)
-    print("Tape:", tape)
-    print("Final States:", final_states)
+    print("Estados:", estados)
+    print("Alfabeto:", alfabeto)
+    print("Transição:", transicao)
+    print("Estado inicial:", estado_inicial)
+    print("Fita inicial:", fita)
+    print("Estados finais:", final_estados)
 
-    current_state = initial_state
-    head_position = 0
+    if not estado_inicial or not fita or not final_estados or not transicao:
+        return jsonify({'error': 'Dados incompletos'})
 
-    while current_state not in final_states:
-        if head_position < 0 or head_position >= len(tape):
+    estado_atual = estado_inicial
+    cabeca_posicao = 0
+    transicao_realizada = []  
+
+    while estado_atual not in final_estados:
+        if cabeca_posicao < 0 or cabeca_posicao >= len(fita):
             return jsonify({'error': 'Cabeça fora dos limites da fita'})
 
-        current_symbol = tape[head_position]
+        simbolo_atual = fita[cabeca_posicao]
         transition_found = False
 
-        print(f"Current State: {current_state}, Symbol: {current_symbol}")
-
-        for transition in transitions:
+        for transition in transicao:
             try:
-                state, symbol, new_state, new_symbol, movement = transition.split(',')
-                print(f"Checking transition: {transition}")
-
-                # Adicionar prints para verificar as comparações
-                print(f"Comparing state: {state} with {current_state}")
-                print(f"Comparing symbol: {symbol} with {current_symbol}")
-
-                if state == current_state and symbol == current_symbol:
-                    tape[head_position] = new_symbol
-                    current_state = new_state
-                    head_position += 1 if movement == 'R' else -1
+                estado, simbolo,novo_estados, novo_simbolo, movimento = transition.split(',')
+                if estado == estado_atual and simbolo == simbolo_atual:
+                    fita[cabeca_posicao] = novo_simbolo
+                    transicao_realizada.append(f"{estado},{simbolo} -> {novo_estados},{novo_simbolo},{movimento}")
+                    estado_atual =novo_estados
+                    cabeca_posicao += 1 if movimento == 'R' else -1
                     transition_found = True
-                    print(f"Transition applied: {state}, {symbol} -> {new_state}, {new_symbol}, {movement}")
                     break
             except ValueError as e:
-                print(f"Error processing transition: {transition} - {e}")
+                return jsonify({'error': f'Erro ao processar transição: {transition} - {e}'})
 
         if not transition_found:
             return jsonify({'error': 'Nenhuma transição válida encontrada'})
 
-    # Depuração: Imprimir o estado final e a fita final antes de retornar
-    print("Final State:", current_state)
-    print("Final Tape:", ''.join(tape))
-
-    return jsonify({'final_tape': ''.join(tape), 'final_state': current_state})
+    return jsonify({
+        'final_fita': ''.join(fita),
+        'final_estado': estado_atual,
+        'transicoes': transicao_realizada
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
-

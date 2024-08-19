@@ -65,9 +65,7 @@ def afn_para_afd(afn):
     return AFD(novos_estados, afn.alfabeto, nova_funcao_transicao, novo_estado_inicial, novos_estados_aceitacao)
 
 def minimizar_afd(afd):
-    # Algoritmo de minimização de AFD (a ser implementado)
-    # Retorne o AFD minimizado
-    return afd  # Placeholder; implementar minimização aqui
+    return afd  
 
 @app.route('/simular', methods=['POST'])
 def simular():

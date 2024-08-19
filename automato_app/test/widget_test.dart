@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Testa interação com o widget AFDApp', (WidgetTester tester) async {
+  testWidgets('Testa interação com o widget AFDApp',
+      (WidgetTester tester) async {
     // Construa o app e acione um frame.
     await tester.pumpWidget(MaterialApp(home: AFDApp()));
 
@@ -22,7 +23,8 @@ void main() {
 
     // Toque no botão de simulação
     await tester.tap(find.text('Simular'));
-    await tester.pumpAndSettle(); // Aguarde a conclusão da animação e atualização de widgets
+    await tester
+        .pumpAndSettle(); // Aguarde a conclusão da animação e atualização de widgets
 
     // Adicione um atraso para garantir que o texto esteja visível
     await Future.delayed(Duration(seconds: 1));

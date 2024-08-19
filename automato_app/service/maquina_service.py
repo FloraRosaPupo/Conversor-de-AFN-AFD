@@ -36,7 +36,7 @@ def simulate():
             return jsonify({'error': 'Cabeça fora dos limites da fita'})
 
         simbolo_atual = fita[cabeca_posicao]
-        transition_found = False
+        transicao_encontrada = False
 
         for transition in transicao:
             try:
@@ -46,12 +46,12 @@ def simulate():
                     transicao_realizada.append(f"{estado},{simbolo} -> {novo_estados},{novo_simbolo},{movimento}")
                     estado_atual =novo_estados
                     cabeca_posicao += 1 if movimento == 'R' else -1
-                    transition_found = True
+                    transicao_encontrada = True
                     break
             except ValueError as e:
                 return jsonify({'error': f'Erro ao processar transição: {transition} - {e}'})
 
-        if not transition_found:
+        if not transicao_encontrada:
             return jsonify({'error': 'Nenhuma transição válida encontrada'})
 
     return jsonify({

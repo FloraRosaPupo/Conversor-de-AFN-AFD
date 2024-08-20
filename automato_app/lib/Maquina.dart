@@ -21,6 +21,7 @@ class _TuringAppState extends State<TuringApp> {
   final TextEditingController _tapeController = TextEditingController();
   final TextEditingController _finalStatesController = TextEditingController();
   String _result = '';
+  String _transitions = '';
 
   Future<void> _simulate() async {
     try {
@@ -52,21 +53,26 @@ class _TuringAppState extends State<TuringApp> {
         if (resultData['error'] != null) {
           setState(() {
             _result = 'Erro: ${resultData['error']}';
+            _transitions = '';
           });
         } else {
           setState(() {
             _result = "Fita Final: ${resultData['final_fita']}\n"
                 "Estado Final: ${resultData['final_state']}\n";
+            _transitions =
+                "Transições Realizadas:\n${resultData['transicoes'].join('\n')}";
           });
         }
       } else {
         setState(() {
           _result = 'Erro na simulação: ${response.body}';
+          _transitions = '';
         });
       }
     } catch (e) {
       setState(() {
         _result = 'Erro: $e';
+        _transitions = '';
       });
     }
   }
@@ -80,6 +86,7 @@ class _TuringAppState extends State<TuringApp> {
     _finalStatesController.clear();
     setState(() {
       _result = '';
+      _transitions = '';
     });
   }
 
@@ -165,6 +172,16 @@ class _TuringAppState extends State<TuringApp> {
             Expanded(
               child: SingleChildScrollView(
                 child: Text(_result),
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Transições Realizadas:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(_transitions),
               ),
             ),
           ],

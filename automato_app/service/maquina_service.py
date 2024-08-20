@@ -23,12 +23,8 @@ def simulate():
         head_position = 0
         transicao_realizada = []
 
-        print(f"Estado Inicial: {current_state}")
-        print(f"Fita Inicial: {''.join(fita)}")
-
         while True:
             if head_position < 0 or head_position >= len(fita):
-                # Expande a fita com espaço em branco se a cabeça sair dos limites
                 if head_position < 0:
                     fita.insert(0, ' ')
                     head_position = 0
@@ -37,11 +33,6 @@ def simulate():
 
             current_symbol = fita[head_position]
             transition_found = False
-
-            print(f"\nEstado Atual: {current_state}")
-            print(f"Posição da Cabeça: {head_position}")
-            print(f"Símbolo Atual: {current_symbol}")
-            print(f"Fita Atual: {''.join(fita)}")
 
             # Processa cada transição
             for transition in transicao:
@@ -52,22 +43,16 @@ def simulate():
                 
                 state, symbol, new_state, new_symbol, movement = parts
 
-                print(f"Tentando Transição: {transition}")
-
                 if state == current_state and symbol == current_symbol:
                     fita[head_position] = new_symbol
                     transicao_realizada.append(f"{state},{symbol} -> {new_state},{new_symbol},{movement}")
                     current_state = new_state
                     head_position += 1 if movement == 'R' else -1
                     transition_found = True
-                    print(f"Transição Aplicada: {transicao_realizada[-1]}")
-                    print(f"Fita Atualizada: {''.join(fita)}")
                     break
 
             if not transition_found:
                 if current_state in final_estados:
-                    print(f"\nEstado Final: {current_state}")
-                    print(f"Fita Final: {''.join(fita)}")
                     break
                 else:
                     return jsonify({'error': 'Nenhuma transição válida encontrada'})
@@ -79,6 +64,7 @@ def simulate():
         })
     except Exception as e:
         return jsonify({'error': str(e)})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

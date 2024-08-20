@@ -30,22 +30,35 @@ class _TuringAppState extends State<TuringApp> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'estados': _statesController.text.split(' '),
-          'alfabeto': _alphabetController.text.split(' '),
-          'transicao': _transitionsController.text.split(';'),
-          'estado_inicial': _initialStateController.text,
-          'fita': _tapeController.text,
-          'final_estados': _finalStatesController.text.split(' '),
+          'estados':
+              _statesController.text.split(' ').map((s) => s.trim()).toList(),
+          'alfabeto':
+              _alphabetController.text.split(' ').map((s) => s.trim()).toList(),
+          'transicao': _transitionsController.text
+              .split(';')
+              .map((t) => t.trim())
+              .toList(),
+          'estado_inicial': _initialStateController.text.trim(),
+          'fita': _tapeController.text.trim(),
+          'final_estados': _finalStatesController.text
+              .split(' ')
+              .map((s) => s.trim())
+              .toList(),
         }),
       );
 
       if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        setState(() {
-          _result = "Fita Final: ${result['final_fita']}\n"
-              "Estado Final: ${result['final_state']}\n"
-              "Transições: ${(result['transicoes'] != null) ? result['transicoes'].join('\n') : 'Nenhuma transição realizada'}";
-        });
+        final resultData = jsonDecode(response.body);
+        if (resultData['error'] != null) {
+          setState(() {
+            _result = 'Erro: ${resultData['error']}';
+          });
+        } else {
+          setState(() {
+            _result = "Fita Final: ${resultData['final_fita']}\n"
+                "Estado Final: ${resultData['final_state']}\n";
+          });
+        }
       } else {
         setState(() {
           _result = 'Erro na simulação: ${response.body}';
@@ -75,7 +88,7 @@ class _TuringAppState extends State<TuringApp> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Maquina de Turing',
+          'Máquina de Turing',
           style: TextStyle(fontSize: 15),
         ),
         leading: IconButton(
@@ -159,11 +172,4 @@ class _TuringAppState extends State<TuringApp> {
       ),
     );
   }
-}
-
-String _validarInput(String value, String type) {
-  if (value.length == 0) {
-    return 'Informe o ${type}';
-  }
-  return '';
 }

@@ -21,15 +21,18 @@ def simulate():
 
         current_state = estado_inicial
         head_position = 0
-        transicao_realizada = []
+        transicoes_realizadas = []
+
+        print(f"Estado inicial: {current_state}")
+        print(f"Fita inicial: {''.join(fita)}")
+        print(f"Posição da cabeça: {head_position}")
 
         while True:
-            if head_position < 0 or head_position >= len(fita):
-                if head_position < 0:
-                    fita.insert(0, ' ')
-                    head_position = 0
-                else:
-                    fita.append(' ')
+            if head_position < 0:
+                fita.insert(0, ' ')
+                head_position = 0
+            elif head_position >= len(fita):
+                fita.append(' ')
 
             current_symbol = fita[head_position]
             transition_found = False
@@ -45,11 +48,17 @@ def simulate():
 
                 if state == current_state and symbol == current_symbol:
                     fita[head_position] = new_symbol
-                    transicao_realizada.append(f"{state},{symbol} -> {new_state},{new_symbol},{movement}")
+                    transicoes_realizadas.append(f"{state},{symbol} -> {new_state},{new_symbol},{movement}")
                     current_state = new_state
                     head_position += 1 if movement == 'R' else -1
                     transition_found = True
                     break
+
+            # Exibe o estado atual e a fita no terminal
+            print(f"Estado atual: {current_state}")
+            print(f"Fita atual: {''.join(fita)}")
+            print(f"Posição da cabeça: {head_position}")
+            print(f"Transições realizadas: {transicoes_realizadas}")
 
             if not transition_found:
                 if current_state in final_estados:
@@ -57,14 +66,17 @@ def simulate():
                 else:
                     return jsonify({'error': 'Nenhuma transição válida encontrada'})
 
-        return jsonify({
+        resultado = {
             'final_fita': ''.join(fita).strip(),
             'final_state': current_state,
-            'transicoes': transicao_realizada
-        })
+            'transicoes': transicoes_realizadas,
+        }
+
+        print(f"Resultado final: {resultado}")
+
+        return jsonify(resultado)
     except Exception as e:
         return jsonify({'error': str(e)})
-
 
 if __name__ == '__main__':
     app.run(debug=True)

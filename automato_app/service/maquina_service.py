@@ -11,16 +11,21 @@ def simulate():
 
         estados = data.get('estados', [])
         alfabeto = data.get('alfabeto', [])
+        alfabeto_fita = data.get('alfabeto_fita', [])
+        marcador_inicio = data.get('marcador_inicio', 'x')
+        simbolo_vazio = data.get('simbolo_vazio', 'y')
         transicao = data.get('transicao', [])
         estado_inicial = data.get('estado_inicial', '')
         fita = list(data.get('fita', ''))
         final_estados = data.get('final_estados', [])
 
-        if not estados or not alfabeto or not transicao or not estado_inicial or not fita or not final_estados:
+        if not estados or not alfabeto or not alfabeto_fita or not transicao or not estado_inicial or not fita or not final_estados:
             return jsonify({'error': 'Todos os campos são obrigatórios'})
 
+        # Inserir marcador de início na fita
+        fita.insert(0, marcador_inicio)
         current_state = estado_inicial
-        head_position = 0
+        head_position = 1
         transicoes_realizadas = []
 
         print(f"Estado inicial: {current_state}")
@@ -29,10 +34,10 @@ def simulate():
 
         while True:
             if head_position < 0:
-                fita.insert(0, ' ')
+                fita.insert(0, simbolo_vazio)
                 head_position = 0
             elif head_position >= len(fita):
-                fita.append(' ')
+                fita.append(simbolo_vazio)
 
             current_symbol = fita[head_position]
             transition_found = False
@@ -50,7 +55,7 @@ def simulate():
                     fita[head_position] = new_symbol
                     transicoes_realizadas.append(f"{state},{symbol} -> {new_state},{new_symbol},{movement}")
                     current_state = new_state
-                    head_position += 1 if movement == 'R' else -1
+                    head_position += 1 if movement == 'R' else -1 if movement == 'L' else 0
                     transition_found = True
                     break
 
@@ -62,19 +67,24 @@ def simulate():
 
             if not transition_found:
                 if current_state in final_estados:
-                    break
+                    resultado = {
+                        'final_fita': ''.join(fita).strip(),
+                        'final_state': current_state,
+                        'transicoes': transicoes_realizadas,
+                        'resultado': 'Sim'
+                    }
+                    print(f"Resultado final: {resultado}")
+                    return jsonify(resultado)
                 else:
-                    return jsonify({'error': 'Nenhuma transição válida encontrada'})
+                    resultado = {
+                        'final_fita': ''.join(fita).strip(),
+                        'final_state': current_state,
+                        'transicoes': transicoes_realizadas,
+                        'resultado': 'Não'
+                    }
+                    print(f"Resultado final: {resultado}")
+                    return jsonify(resultado)
 
-        resultado = {
-            'final_fita': ''.join(fita).strip(),
-            'final_state': current_state,
-            'transicoes': transicoes_realizadas,
-        }
-
-        print(f"Resultado final: {resultado}")
-
-        return jsonify(resultado)
     except Exception as e:
         return jsonify({'error': str(e)})
 

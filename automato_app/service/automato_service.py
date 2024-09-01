@@ -78,7 +78,7 @@ def simular():
         estado_inicial = dados.get('estado_inicial')
         estados_aceitacao = dados.get('estados_aceitacao')
         palavras = dados.get('palavras')
-        minimizar = dados.get('minimizar', False)  # Adiciona a opção de minimização
+        minimizar = dados.get('minimizar', False) 
 
         estados = set(estados)
         alfabeto = set(alfabeto)

@@ -22,7 +22,6 @@ def simulate():
         if not estados or not alfabeto or not alfabeto_fita or not transicao or not estado_inicial or not fita or not final_estados:
             return jsonify({'error': 'Todos os campos são obrigatórios'})
 
-        # Inserir marcador de início na fita
         fita.insert(0, marcador_inicio)
         current_state = estado_inicial
         head_position = 1
@@ -42,7 +41,6 @@ def simulate():
             current_symbol = fita[head_position]
             transition_found = False
 
-            # Processa cada transição
             for transition in transicao:
                 parts = [part.strip() for part in transition.split(',')]
                 
@@ -59,7 +57,6 @@ def simulate():
                     transition_found = True
                     break
 
-            # Exibe o estado atual e a fita no terminal
             print(f"Estado atual: {current_state}")
             print(f"Fita atual: {''.join(fita)}")
             print(f"Posição da cabeça: {head_position}")

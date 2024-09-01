@@ -8,6 +8,7 @@ class AFDApp extends StatefulWidget {
 }
 
 class _AFDAppState extends State<AFDApp> {
+  //paramentros 
   final TextEditingController _tipoAutomatoController = TextEditingController();
   final TextEditingController _estadosController = TextEditingController();
   final TextEditingController _alfabetoController = TextEditingController();
@@ -17,9 +18,10 @@ class _AFDAppState extends State<AFDApp> {
   final TextEditingController _estadosAceitacaoController =
       TextEditingController();
   final TextEditingController _palavrasController = TextEditingController();
-  bool _minimizar = false;
-  String _resultado = '';
+  bool _minimizar = false; //variavel pra mimizar 
+  String _resultado = ''; //variavel do resultado 
 
+  //inicialização
   @override
   void initState() {
     super.initState();
@@ -43,6 +45,7 @@ class _AFDAppState extends State<AFDApp> {
     setState(() {});
   }
 
+  //Acesso ao BackEnd
   Future<void> _simular() async {
     try {
       final response = await http.post(
@@ -50,6 +53,8 @@ class _AFDAppState extends State<AFDApp> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
+
+        //infos passadas pro backend
         body: jsonEncode(<String, dynamic>{
           'tipo_automato': _tipoAutomatoController.text,
           'estados': _estadosController.text.split(' '),
@@ -62,6 +67,7 @@ class _AFDAppState extends State<AFDApp> {
         }),
       );
 
+      //retorno da minha requisição 
       if (response.statusCode == 200) {
         final resultado = json.decode(response.body);
         setState(() {

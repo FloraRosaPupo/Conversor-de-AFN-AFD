@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void main() {
-  runApp(MaterialApp(
-    home: TuringApp(),
-  ));
-}
-
 class TuringApp extends StatefulWidget {
   @override
   _TuringAppState createState() => _TuringAppState();
 }
 
 class _TuringAppState extends State<TuringApp> {
+  //paramentros
   final TextEditingController _statesController = TextEditingController();
   final TextEditingController _alphabetController = TextEditingController();
   final TextEditingController _tapeAlphabetController = TextEditingController();
@@ -28,6 +23,7 @@ class _TuringAppState extends State<TuringApp> {
   String _result = '';
   String _transitions = '';
 
+  //Acesso ao BackEnd
   Future<void> _simulate() async {
     print("Simulação iniciada...");
     try {
@@ -37,6 +33,8 @@ class _TuringAppState extends State<TuringApp> {
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },
+
+            //infos passadas pro backend
             body: jsonEncode(<String, dynamic>{
               'estados': _statesController.text
                   .split(' ')
@@ -64,11 +62,12 @@ class _TuringAppState extends State<TuringApp> {
                   .toList(),
             }),
           )
-          .timeout(Duration(seconds: 10)); // Timeout de 10 segundos
+          .timeout(Duration(seconds: 10));
 
       print("Resposta recebida: ${response.statusCode}");
       print("Corpo da resposta: ${response.body}");
 
+      //retorno da minha requisição
       if (response.statusCode == 200) {
         final resultData = jsonDecode(response.body);
         if (resultData['error'] != null) {

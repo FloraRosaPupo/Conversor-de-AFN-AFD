@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:automato_app/AFD.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,8 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('Testa interação com o widget AFDApp',
       (WidgetTester tester) async {
+    final client=MockClient((request) async {
+      expect(request.url.path,'/simular');
+      return http.Response('{"ab":{"aceito":true}}',200);
+    });
+    addTearDown(client.close);
     // Construa o app e acione um frame.
-    await tester.pumpWidget(MaterialApp(home: AFDApp()));
+    await tester.pumpWidget(MaterialApp(home: AFDApp(client:client)));
 
     // Verifique se os campos e botões estão presentes
     expect(find.text('Tipo de autômato (AFD ou AFN)'), findsOneWidget);
@@ -22,12 +29,13 @@ void main() {
     await tester.enterText(find.byType(TextField).at(6), 'ab');
 
     // Toque no botão de simulação
+    await tester.ensureVisible(find.text('Simular'));
     await tester.tap(find.text('Simular'));
     await tester
         .pumpAndSettle(); // Aguarde a conclusão da animação e atualização de widgets
 
     // Adicione um atraso para garantir que o texto esteja visível
-    await Future.delayed(Duration(seconds: 1));
+
 
     // Verifique se o resultado esperado está presente
     expect(find.textContaining('Palavra: ab'), findsOneWidget);

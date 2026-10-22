@@ -125,7 +125,7 @@ class _AFDAppState extends State<AFDApp> {
           },
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,13 +207,9 @@ class _AFDAppState extends State<AFDApp> {
               'Resultado:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(8.0),
-                child: SingleChildScrollView(
-                  child: Text(_resultado),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(_resultado),
             ),
           ],
         ),

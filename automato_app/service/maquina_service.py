@@ -31,7 +31,8 @@ def simulate():
         print(f"Fita inicial: {''.join(fita)}")
         print(f"Posição da cabeça: {head_position}")
 
-        while True:
+        max_steps = 10000
+        while len(transicoes_realizadas) < max_steps:
             if head_position < 0:
                 fita.insert(0, simbolo_vazio)
                 head_position = 0
@@ -43,10 +44,10 @@ def simulate():
 
             for transition in transicao:
                 parts = [part.strip() for part in transition.split(',')]
-                
+
                 if len(parts) != 5:
                     return jsonify({'error': f'Transição mal formatada: {transition}'})
-                
+
                 state, symbol, new_state, new_symbol, movement = parts
 
                 if state == current_state and symbol == current_symbol:
@@ -82,8 +83,10 @@ def simulate():
                     print(f"Resultado final: {resultado}")
                     return jsonify(resultado)
 
+        return jsonify({'error': 'Limite de 10000 passos atingido.'}), 422
+
     except Exception as e:
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, port=5001)

@@ -3,12 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AFDApp extends StatefulWidget {
+  final http.Client? client;
+  const AFDApp({super.key, this.client});
   @override
   _AFDAppState createState() => _AFDAppState();
 }
 
 class _AFDAppState extends State<AFDApp> {
-  //paramentros 
+  //paramentros
   final TextEditingController _tipoAutomatoController = TextEditingController();
   final TextEditingController _estadosController = TextEditingController();
   final TextEditingController _alfabetoController = TextEditingController();
@@ -18,8 +20,8 @@ class _AFDAppState extends State<AFDApp> {
   final TextEditingController _estadosAceitacaoController =
       TextEditingController();
   final TextEditingController _palavrasController = TextEditingController();
-  bool _minimizar = false; //variavel pra mimizar 
-  String _resultado = ''; //variavel do resultado 
+  bool _minimizar = false; //variavel pra mimizar
+  String _resultado = ''; //variavel do resultado
 
   //inicialização
   @override
@@ -48,8 +50,9 @@ class _AFDAppState extends State<AFDApp> {
   //Acesso ao BackEnd
   Future<void> _simular() async {
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:5000/simular'),
+      final response = await (widget.client?.post ?? http.post)(
+        Uri.parse(
+            '${const String.fromEnvironment('AUTOMATO_API_URL', defaultValue: 'http://localhost:5000')}/simular'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -67,7 +70,8 @@ class _AFDAppState extends State<AFDApp> {
         }),
       );
 
-      //retorno da minha requisição 
+      if (!mounted) return;
+      //retorno da minha requisição
       if (response.statusCode == 200) {
         final resultado = json.decode(response.body);
         setState(() {
@@ -83,6 +87,7 @@ class _AFDAppState extends State<AFDApp> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _resultado = 'Erro: $e';
       });
@@ -121,7 +126,7 @@ class _AFDAppState extends State<AFDApp> {
           },
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,13 +208,9 @@ class _AFDAppState extends State<AFDApp> {
               'Resultado:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(8.0),
-                child: SingleChildScrollView(
-                  child: Text(_resultado),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(_resultado),
             ),
           ],
         ),

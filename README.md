@@ -56,3 +56,47 @@ Este projeto consiste em dois aplicativos distintos desenvolvidos em Flutter par
    O simulador de Autômatos Finitos usa uma interface Flutter para coleta de dados e um backend Flask para processamento. A entrada é fornecida por meio de campos de texto na interface Flutter e enviada para o backend em formato JSON. O backend processa as informações e retorna os resultados da simulação, indicando se cada palavra foi aceita ou rejeitada e, no caso de AFD, se foi minimizada.
 
 Ambos os aplicativos permitem observar e entender o comportamento desses modelos teóricos ao simular diferentes configurações e entradas, proporcionando uma visão prática dos conceitos de automação e computabilidade.
+
+
+## Desenvolvimento e validação
+
+O aplicativo está em `automato_app`. Use Flutter 3.41.1. Na pasta do aplicativo, execute:
+
+```sh
+flutter pub get
+flutter analyze --no-fatal-infos --no-fatal-warnings
+flutter test
+flutter run
+```
+
+A CI valida análise e testes em pushes e pull requests. Serviços externos precisam de configuração própria.
+
+## Serviços Python
+
+Use Python 3.11+ e, na pasta `automato_app/service`, execute `python -m pip install -r requirements.txt`. Inicie `python automato_service.py` (porta 5000) e `python maquina_service.py` (porta 5001) em terminais separados. Configure as URLs do aplicativo de acordo com o dispositivo; localhost no emulador não é o computador hospedeiro.
+
+Execute `python -m unittest discover -s tests -v` nessa pasta. A conversão AFN aceita múltiplos destinos por transição; minimização ainda não está implementada e retorna erro explícito. A máquina de Turing limita a execução a 10000 passos. Não há suporte a transições epsilon no conversor.
+
+
+## Stack e bibliotecas
+
+Flutter/Dart, http, Python, Flask e flask-cors.
+
+
+## Funcionalidades
+
+- Simulação de AFD/AFN.
+- determinização.
+- máquina de Turing com limite de passos.
+
+
+## Licença
+
+Não há licença de distribuição definida neste repositório. Os direitos de terceiros e as atribuições existentes devem ser respeitados; esta revisão não concede permissão de redistribuição.
+
+
+## Organização e manutenção
+
+Interfaces de autômatos e Turing foram separadas em features; seleção fica em app. Serviços Python são processos separados e o cliente HTTP da tela é substituível. Minimização não implementada responde erro explícito.
+
+Veja [a revisão de desenvolvimento](docs/REVISAO.md) para decisões, testes e limites, e [o guia de contribuição](CONTRIBUTING.md) para o fluxo de manutenção.

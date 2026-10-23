@@ -1,6 +1,6 @@
-import 'package:automato_app/AFD.dart';
-import 'package:automato_app/Maquina.dart';
-import 'package:automato_app/painel.dart';
+import 'package:automato_app/features/automata/presentation/AFD.dart';
+import 'package:automato_app/features/turing/presentation/Maquina.dart';
+import 'package:automato_app/app/painel.dart';
 import 'package:flutter/material.dart';
 
 void main() {

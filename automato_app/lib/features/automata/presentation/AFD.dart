@@ -51,7 +51,8 @@ class _AFDAppState extends State<AFDApp> {
   Future<void> _simular() async {
     try {
       final response = await (widget.client?.post ?? http.post)(
-        Uri.parse('${const String.fromEnvironment('AUTOMATO_API_URL', defaultValue: 'http://localhost:5000')}/simular'),
+        Uri.parse(
+            '${const String.fromEnvironment('AUTOMATO_API_URL', defaultValue: 'http://localhost:5000')}/simular'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

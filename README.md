@@ -76,3 +76,27 @@ A CI valida análise e testes em pushes e pull requests. Serviços externos prec
 Use Python 3.11+ e, na pasta `automato_app/service`, execute `python -m pip install -r requirements.txt`. Inicie `python automato_service.py` (porta 5000) e `python maquina_service.py` (porta 5001) em terminais separados. Configure as URLs do aplicativo de acordo com o dispositivo; localhost no emulador não é o computador hospedeiro.
 
 Execute `python -m unittest discover -s tests -v` nessa pasta. A conversão AFN aceita múltiplos destinos por transição; minimização ainda não está implementada e retorna erro explícito. A máquina de Turing limita a execução a 10000 passos. Não há suporte a transições epsilon no conversor.
+
+
+## Stack e bibliotecas
+
+Flutter/Dart, http, Python, Flask e flask-cors.
+
+
+## Funcionalidades
+
+- Simulação de AFD/AFN.
+- determinização.
+- máquina de Turing com limite de passos.
+
+
+## Licença
+
+Não há licença de distribuição definida neste repositório. Os direitos de terceiros e as atribuições existentes devem ser respeitados; esta revisão não concede permissão de redistribuição.
+
+
+## Organização e manutenção
+
+Interfaces de autômatos e Turing foram separadas em features; seleção fica em app. Serviços Python são processos separados e o cliente HTTP da tela é substituível. Minimização não implementada responde erro explícito.
+
+Veja [a revisão de desenvolvimento](docs/REVISAO.md) para decisões, testes e limites, e [o guia de contribuição](CONTRIBUTING.md) para o fluxo de manutenção.

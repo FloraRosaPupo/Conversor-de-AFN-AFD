@@ -29,7 +29,8 @@ class _TuringAppState extends State<TuringApp> {
     try {
       final response = await http
           .post(
-            Uri.parse('${const String.fromEnvironment('TURING_API_URL', defaultValue: 'http://localhost:5001')}/simulate'),
+            Uri.parse(
+                '${const String.fromEnvironment('TURING_API_URL', defaultValue: 'http://localhost:5001')}/simulate'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },

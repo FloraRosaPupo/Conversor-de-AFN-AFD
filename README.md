@@ -1,6 +1,32 @@
-### Simulador de Máquinas de Turing e Autômatos Finitos
+# Simulador de Autômatos Finitos e Máquina de Turing
 
-Este projeto consiste em dois aplicativos distintos desenvolvidos em Flutter para simulação de modelos teóricos em ciência da computação:
+## Descrição
+
+Aplicativo Flutter com serviços Python/Flask para simular autômatos finitos, converter AFN em AFD e executar máquinas de Turing com limite de passos. A minimização de AFD não está implementada e retorna erro explícito.
+
+## Stack e bibliotecas
+
+Flutter/Dart, http, Python, Flask e flask-cors.
+
+Dependências e versões declaradas: [automato_app/pubspec.yaml](automato_app/pubspec.yaml), [automato_app/service/requirements.txt](automato_app/service/requirements.txt).
+
+## Funcionalidades
+
+- Simulação de AFD/AFN.
+- Determinização.
+- Máquina de Turing com limite de passos.
+
+## Licença
+
+Não há uma licença de distribuição definida para este repositório. Nenhuma licença MIT, Apache ou equivalente é concedida por este README. As atribuições e os direitos dos materiais de terceiros permanecem preservados.
+
+## Validação e limites
+
+Validação e conversão da API e interação do formulário com HTTP simulado. APIs reais usam portas/configuração documentadas.
+
+## Guia de entradas e simulação
+
+A interface reúne duas áreas de simulação:
 
 1. **Simulador de Máquina de Turing**
 
@@ -36,7 +62,7 @@ Este projeto consiste em dois aplicativos distintos desenvolvidos em Flutter par
    **Funcionalidades**
    - **Simulação de AFD/AFN**: Simula AFD ou AFN com base nos dados inseridos.
    - **Avaliação de Palavras**: Exibe se cada palavra é aceita ou rejeitada pelo autômato.
-   - **Minimização de AFD**: Opção para minimizar o AFD (apenas para autômatos determinísticos).
+   - **Minimização de AFD**: não implementada; a API retorna erro explícito.
 
    **Tecnologias Utilizadas**
    - **Frontend**: Flutter
@@ -50,13 +76,12 @@ Este projeto consiste em dois aplicativos distintos desenvolvidos em Flutter par
    - **Estado Inicial**: Informe o estado inicial.
    - **Estados de Aceitação**: Liste os estados de aceitação, separados por espaço.
    - **Palavras para Simulação**: Informe as palavras a serem simuladas, separadas por espaço.
-   - **Minimizar AFD**: Marque a opção se desejar minimizar o AFD (apenas para autômatos determinísticos).
+   - **Minimizar AFD**: mantenha desmarcado; essa operação não está implementada.
 
    **Funcionamento**
-   O simulador de Autômatos Finitos usa uma interface Flutter para coleta de dados e um backend Flask para processamento. A entrada é fornecida por meio de campos de texto na interface Flutter e enviada para o backend em formato JSON. O backend processa as informações e retorna os resultados da simulação, indicando se cada palavra foi aceita ou rejeitada e, no caso de AFD, se foi minimizada.
+   O simulador de Autômatos Finitos usa uma interface Flutter para coleta de dados e um backend Flask para processamento. A entrada é fornecida por meio de campos de texto na interface Flutter e enviada para o backend em formato JSON. O backend processa as informações e retorna os resultados da simulação, indicando se cada palavra foi aceita ou rejeitada A minimização não é executada.
 
 Ambos os aplicativos permitem observar e entender o comportamento desses modelos teóricos ao simular diferentes configurações e entradas, proporcionando uma visão prática dos conceitos de automação e computabilidade.
-
 
 ## Desenvolvimento e validação
 
@@ -76,24 +101,6 @@ A CI valida análise e testes em pushes e pull requests. Serviços externos prec
 Use Python 3.11+ e, na pasta `automato_app/service`, execute `python -m pip install -r requirements.txt`. Inicie `python automato_service.py` (porta 5000) e `python maquina_service.py` (porta 5001) em terminais separados. Configure as URLs do aplicativo de acordo com o dispositivo; localhost no emulador não é o computador hospedeiro.
 
 Execute `python -m unittest discover -s tests -v` nessa pasta. A conversão AFN aceita múltiplos destinos por transição; minimização ainda não está implementada e retorna erro explícito. A máquina de Turing limita a execução a 10000 passos. Não há suporte a transições epsilon no conversor.
-
-
-## Stack e bibliotecas
-
-Flutter/Dart, http, Python, Flask e flask-cors.
-
-
-## Funcionalidades
-
-- Simulação de AFD/AFN.
-- determinização.
-- máquina de Turing com limite de passos.
-
-
-## Licença
-
-Não há licença de distribuição definida neste repositório. Os direitos de terceiros e as atribuições existentes devem ser respeitados; esta revisão não concede permissão de redistribuição.
-
 
 ## Organização e manutenção
 
